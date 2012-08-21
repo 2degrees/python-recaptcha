@@ -167,8 +167,8 @@ class RecaptchaClient(object):
         remote_ip,
         ):
         verification_url = _get_recaptcha_api_call_url(
-            _RECAPTCHA_VERIFICATION_RELATIVE_URL_PATH,
             use_ssl=True,
+            relative_url_path=_RECAPTCHA_VERIFICATION_RELATIVE_URL_PATH,
             )
         request_data = urlencode({
             'privatekey': self.private_key,
