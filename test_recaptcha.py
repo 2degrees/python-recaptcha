@@ -53,19 +53,14 @@ _FAKE_CHALLENGE_ID = '12345'
 _RANDOM_REMOTE_IP = '192.0.2.0'
 
 
-_FAKE_CLIENT = RecaptchaClient(
-    _FAKE_PRIVATE_KEY,
-    _FAKE_PUBLIC_KEY,
-    )
-
-
 #{ Challenge markup generation tests
 
 
 class TestChallengeURLsGeneration(object):
     
     def test_public_key_inclusion(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(False, False)
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(False, False)
         
         javascript_challenge_url = variables['javascript_challenge_url']
         javascript_challenge_url_components = urlparse(javascript_challenge_url)
@@ -73,7 +68,7 @@ class TestChallengeURLsGeneration(object):
             javascript_challenge_url_components.query,
             )
         assert_in('k', javascript_challenge_url_query)
-        eq_(_FAKE_CLIENT.public_key, javascript_challenge_url_query['k'][0])
+        eq_(client.public_key, javascript_challenge_url_query['k'][0])
         
         noscript_challenge_url = variables['noscript_challenge_url']
         noscript_challenge_url_components = urlparse(noscript_challenge_url)
@@ -83,7 +78,8 @@ class TestChallengeURLsGeneration(object):
             )
     
     def test_ssl_required(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(
             False,
             use_ssl=False,
             )
@@ -95,7 +91,8 @@ class TestChallengeURLsGeneration(object):
         ok_(noscript_challenge_url.startswith(_RECAPTCHA_API_URL))
     
     def test_ssl_not_required(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(
             False,
             use_ssl=True,
             )
@@ -107,7 +104,8 @@ class TestChallengeURLsGeneration(object):
         ok_(noscript_challenge_url.startswith('https://'))
     
     def test_previous_solution_incorrect(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(
             was_previous_solution_incorrect=True,
             use_ssl=False,
             )
@@ -128,7 +126,8 @@ class TestChallengeURLsGeneration(object):
             )
     
     def test_previous_solution_correct(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(
             was_previous_solution_incorrect=False,
             use_ssl=False,
             )
@@ -148,7 +147,8 @@ class TestChallengeURLsGeneration(object):
             )
     
     def test_url_paths(self):
-        variables = _FAKE_CLIENT._get_challenge_urls(
+        client = _OfflineVerificationClient()
+        variables = client._get_challenge_urls(
             was_previous_solution_incorrect=False,
             use_ssl=False,
             )
@@ -277,7 +277,7 @@ class TestSolutionVerification(object):
 
 class _OfflineVerificationClient(RecaptchaClient):
     
-    def __init__(self, verification_result):
+    def __init__(self, verification_result=None):
         super(_OfflineVerificationClient, self).__init__(
             _FAKE_PRIVATE_KEY,
             _FAKE_PUBLIC_KEY,
