@@ -38,6 +38,27 @@ __all__ = [
     ]
 
 
+_INCORRECT_SOLUTION_RESULT = {
+    'is_solution_correct': False,
+    'error_code': 'incorrect-captcha-sol',
+    }
+
+
+_FAKE_PRIVATE_KEY = 'private key'
+_FAKE_PUBLIC_KEY = 'public key'
+
+
+_FAKE_SOLUTION_TEXT = 'hello world'
+_FAKE_CHALLENGE_ID = '12345'
+_RANDOM_REMOTE_IP = '192.0.2.0'
+
+
+_FAKE_CLIENT = RecaptchaClient(
+    _FAKE_PRIVATE_KEY,
+    _FAKE_PUBLIC_KEY,
+    )
+
+
 #{ Challenge markup generation tests
 
 
@@ -251,28 +272,7 @@ class TestSolutionVerification(object):
         assert_false(is_solution_correct)
 
 
-#{ Mock objects and stubs
-
-
-_INCORRECT_SOLUTION_RESULT = {
-    'is_solution_correct': False,
-    'error_code': 'incorrect-captcha-sol',
-    }
-
-
-_FAKE_PRIVATE_KEY = 'private key'
-_FAKE_PUBLIC_KEY = 'public key'
-
-
-_FAKE_SOLUTION_TEXT = 'hello world'
-_FAKE_CHALLENGE_ID = '12345'
-_RANDOM_REMOTE_IP = '192.0.2.0'
-
-
-_FAKE_CLIENT = RecaptchaClient(
-    _FAKE_PRIVATE_KEY,
-    _FAKE_PUBLIC_KEY,
-    )
+#{ Stubs
 
 
 class _OfflineVerificationClient(RecaptchaClient):
