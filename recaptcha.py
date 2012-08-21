@@ -70,10 +70,11 @@ _RECAPTCHA_CHALLENGE_MARKUP_TEMPLATE = """
 
 
 _CLIENT_USER_AGENT = \
-    '2degrees reCAPTCHA Client (https://github.com/2degrees/python-recaptcha)'
+    'reCAPTCHA Client by 2degrees (http://packages.python.org/recaptcha/)'
 
 
 class RecaptchaClient(object):
+    """Stateless reCAPTCHA client."""
     
     def __init__(
         self,
