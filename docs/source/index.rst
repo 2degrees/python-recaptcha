@@ -87,7 +87,7 @@ To verify the solution to a CAPTCHA challenge, you need to call the
             '192.0.2.0',
             )
     except RecaptchaUnreachableError as exc:
-        disable_form(reason='reCAPCHA is unreachable; please try again later')
+        disable_form(reason='reCAPTCHA is unreachable; please try again later')
     except RecaptchaException as exc:
         report_exception_to_developers(exc)
     else:
