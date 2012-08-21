@@ -83,6 +83,22 @@ class RecaptchaClient(object):
         recaptcha_options=None,
         verification_timeout=None,
         ):
+        """
+        
+        :param private_key: The reCAPTCHA API private key
+        :type private_key: :class:`str`
+        :param public_key: The reCAPTCHA API public key
+        :type public_key: :class:`str`
+        :param recaptcha_options: Options to customize the challenge
+        :type recaptcha_options: :class:`dict` that can be serialized to JSON
+        :param verification_timeout: Maximum number of seconds to wait for
+            reCAPTCHA to respond to a verification request
+        :type verification_timeout: :class:`int`
+        
+        When ``verification_timeout`` is ``None``, the default socket timeout
+        will be used. See :meth:`is_solution_correct`.
+        
+        """
         super(RecaptchaClient, self).__init__()
         
         self.private_key = private_key
@@ -97,6 +113,18 @@ class RecaptchaClient(object):
         was_previous_solution_incorrect=False,
         use_ssl=False,
         ):
+        """
+        Return the X/HTML code to present a challenge.
+        
+        :type was_previous_solution_incorrect: :class:`bool`
+        :param use_ssl: Whether to generate the markup with HTTPS URLs instead
+            of HTTP ones
+        :type use_ssl: :class:`bool`
+        :rtype: :class:`str`
+        
+        This method does not communicate with the remote reCAPTCHA API.
+        
+        """
         challenge_markup_variables = {
             'recaptcha_options_json': self.recaptcha_options_json,
             }
@@ -113,6 +141,26 @@ class RecaptchaClient(object):
         return challenge_markup
     
     def is_solution_correct(self, solution_text, challenge_id, remote_ip):
+        """
+        Report whether the ``solution_text`` for ``challenge_id`` is correct.
+        
+        :param solution_text: The user's solution to the CAPTCHA challenge
+            identified by ``challenge_id``
+        :type solution_text: :class:`str`
+        :type challenge_id: :class:`str`
+        :param remote_ip: The IP address of the user who provided the
+            ``solution_text``
+        :type remote_ip: :class:`str`
+        :rtype: :class:`bool`
+        :raises RecaptchaInvalidChallengeError: If ``challenge_id`` is not valid
+        :raises RecaptchaInvalidPrivateKeyError:
+        :raises RecaptchaUnreachableError: If it couldn't communicate with the
+            reCAPTCHA API or the connection timed out
+        
+        This method communicates with the remote reCAPTCHA API and uses the
+        ``verification_timeout`` set in the constructor.
+        
+        """
         if not solution_text or not challenge_id:
             return False
         
