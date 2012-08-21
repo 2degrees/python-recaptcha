@@ -36,7 +36,7 @@ __all__ = [
 _RECAPTCHA_API_URL = 'http://www.google.com/recaptcha/api/'
 
 
-_RECAPTCHA_VERIFICATION_URL_PATH = 'verify'
+_RECAPTCHA_VERIFICATION_RELATIVE_URL_PATH = 'verify'
 _RECAPTCHA_JAVASCRIPT_CHALLENGE_RELATIVE_URL_PATH = 'challenge'
 _RECAPTCHA_NOSCRIPT_CHALLENGE_RELATIVE_URL_PATH = 'noscript'
 
@@ -167,7 +167,7 @@ class RecaptchaClient(object):
         remote_ip,
         ):
         verification_url = _get_recaptcha_api_call_url(
-            _RECAPTCHA_VERIFICATION_URL_PATH,
+            _RECAPTCHA_VERIFICATION_RELATIVE_URL_PATH,
             use_ssl=True,
             )
         request_data = urlencode({
