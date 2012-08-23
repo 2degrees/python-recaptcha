@@ -19,7 +19,7 @@ from setuptools import setup
 
 
 _branch_path = os.path.abspath(os.path.dirname(__file__))
-_readme = open(os.path.join(_branch_path, 'README.md')).read()
+_readme = open(os.path.join(_branch_path, 'README.txt')).read()
 _version = open(os.path.join(_branch_path, 'VERSION.txt')).readline().rstrip()
 
 
@@ -44,6 +44,7 @@ setup(
     author='2degrees Limited',
     author_email='2degrees-floss@googlegroups.com',
     url='http://packages.python.org/recaptcha',
+    download_url='http://pypi.python.org/pypi/recaptcha/',
     license='BSD (http://dev.2degreesnetwork.com/p/2degrees-license.html)',
     py_modules=['recaptcha'],
     zip_safe=False,
