@@ -60,9 +60,9 @@ class TestChallengeURLsGeneration(object):
     
     def test_public_key_inclusion(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(False, False)
+        urls = client._get_challenge_urls(False, False)
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         javascript_challenge_url_components = urlparse(javascript_challenge_url)
         javascript_challenge_url_query = parse_qs(
             javascript_challenge_url_components.query,
@@ -70,7 +70,7 @@ class TestChallengeURLsGeneration(object):
         assert_in('k', javascript_challenge_url_query)
         eq_(client.public_key, javascript_challenge_url_query['k'][0])
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         noscript_challenge_url_components = urlparse(noscript_challenge_url)
         eq_(
             javascript_challenge_url_components.query,
@@ -79,38 +79,32 @@ class TestChallengeURLsGeneration(object):
     
     def test_ssl_required(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(
-            False,
-            use_ssl=False,
-            )
+        urls = client._get_challenge_urls(False, use_ssl=False)
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         ok_(javascript_challenge_url.startswith(_RECAPTCHA_API_URL))
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         ok_(noscript_challenge_url.startswith(_RECAPTCHA_API_URL))
     
     def test_ssl_not_required(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(
-            False,
-            use_ssl=True,
-            )
+        urls = client._get_challenge_urls(False, use_ssl=True)
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         ok_(javascript_challenge_url.startswith('https://'))
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         ok_(noscript_challenge_url.startswith('https://'))
     
     def test_previous_solution_incorrect(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(
+        urls = client._get_challenge_urls(
             was_previous_solution_incorrect=True,
             use_ssl=False,
             )
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         javascript_challenge_url_components = urlparse(javascript_challenge_url)
         javascript_challenge_url_query = parse_qs(
             javascript_challenge_url_components.query,
@@ -118,7 +112,7 @@ class TestChallengeURLsGeneration(object):
         assert_in('error', javascript_challenge_url_query)
         eq_('incorrect-captcha-sol', javascript_challenge_url_query['error'][0])
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         noscript_challenge_url_components = urlparse(noscript_challenge_url)
         eq_(
             javascript_challenge_url_components.query,
@@ -127,19 +121,19 @@ class TestChallengeURLsGeneration(object):
     
     def test_previous_solution_correct(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(
+        urls = client._get_challenge_urls(
             was_previous_solution_incorrect=False,
             use_ssl=False,
             )
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         javascript_challenge_url_components = urlparse(javascript_challenge_url)
         javascript_challenge_url_query = parse_qs(
             javascript_challenge_url_components.query,
             )
         assert_not_in('error', javascript_challenge_url_query)
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         noscript_challenge_url_components = urlparse(noscript_challenge_url)
         eq_(
             javascript_challenge_url_components.query,
@@ -148,15 +142,15 @@ class TestChallengeURLsGeneration(object):
     
     def test_url_paths(self):
         client = _OfflineVerificationClient()
-        variables = client._get_challenge_urls(
+        urls = client._get_challenge_urls(
             was_previous_solution_incorrect=False,
             use_ssl=False,
             )
         
-        javascript_challenge_url = variables['javascript_challenge_url']
+        javascript_challenge_url = urls['javascript_challenge_url']
         javascript_challenge_url_components = urlparse(javascript_challenge_url)
         
-        noscript_challenge_url = variables['noscript_challenge_url']
+        noscript_challenge_url = urls['noscript_challenge_url']
         noscript_challenge_url_components = urlparse(noscript_challenge_url)
         
         assert_not_equal(
