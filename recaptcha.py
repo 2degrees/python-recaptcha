@@ -160,6 +160,12 @@ class RecaptchaClient(object):
         This method communicates with the remote reCAPTCHA API and uses the
         ``verification_timeout`` set in the constructor.
         
+        .. note::
+        
+            ``solution_text`` and ``challenge_id`` must be byte streams (i.e.,
+            :class:`str` objects). You are expected to encode any non-ASCII
+            unicode character that the user might've entered.
+        
         """
         if not solution_text or not challenge_id:
             return False
