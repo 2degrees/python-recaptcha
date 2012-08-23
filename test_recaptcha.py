@@ -201,7 +201,7 @@ class TestSolutionVerification(object):
         assert_false(is_solution_correct)
         
         # reCAPTCHA must not have been contacted
-        eq_(0, client.communication_attemps)
+        eq_(0, client.communication_attempts)
     
     def test_empty_challenge(self):
         client = _OfflineVerificationClient(_INCORRECT_SOLUTION_RESULT)
@@ -214,7 +214,7 @@ class TestSolutionVerification(object):
         assert_false(is_solution_correct)
         
         # reCAPTCHA must not have been contacted
-        eq_(0, client.communication_attemps)
+        eq_(0, client.communication_attempts)
     
     def test_invalid_private_key(self):
         invalid_private_key_result = {
@@ -284,7 +284,7 @@ class _OfflineVerificationClient(RecaptchaClient):
             )
         
         self.verification_result = verification_result
-        self.communication_attemps = 0
+        self.communication_attempts = 0
     
     def _get_recaptcha_response_for_solution(
         self,
@@ -293,7 +293,7 @@ class _OfflineVerificationClient(RecaptchaClient):
         remote_ip,
         ):
         
-        self.communication_attemps += 1
+        self.communication_attempts += 1
         
         return self.verification_result
 
