@@ -170,16 +170,16 @@ class RecaptchaClient(object):
             remote_ip,
             )
         
-        is_solution_correct_ = verification_result['is_solution_correct']
+        is_solution_correct = verification_result['is_solution_correct']
         
-        if not is_solution_correct_:
+        if not is_solution_correct:
             error_code = verification_result['error_code']
             if error_code == 'invalid-request-cookie':
                 raise RecaptchaInvalidChallengeError(challenge_id)
             elif error_code == 'invalid-site-private-key':
                 raise RecaptchaInvalidPrivateKeyError(self.private_key)
         
-        return is_solution_correct_
+        return is_solution_correct
     
     def _get_challenge_urls(
         self,
