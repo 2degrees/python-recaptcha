@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2012, 2degrees Limited <gustavonarea@2degreesnetwork.com>.
+# Copyright (c) 2012, 2degrees Limited <2degrees-floss@googlegroups.com>.
 # All Rights Reserved.
 #
 # This file is part of python-recaptcha <http://packages.python.org/recaptcha>,
