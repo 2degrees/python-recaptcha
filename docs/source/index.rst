@@ -13,7 +13,8 @@ This is a pythonic and well-documented `reCAPTCHA
 <https://www.google.com/recaptcha/>`_ client that supports all the features of
 the remote API to generate and verify CAPTCHA challenges.
 
-The library requires Python 2.6 (or newer) and has no external dependencies.
+The library has been created using Python 2.7 but is expected to work in
+Python 2.6 as well.
 
 `Mailhide <http://www.google.com/recaptcha/mailhide/>`_ support is outside the
 scope of the project.
