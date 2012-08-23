@@ -162,7 +162,7 @@ class RecaptchaClient(object):
         
         .. note::
         
-            ``solution_text`` and ``challenge_id`` must be byte streams (i.e.,
+            ``solution_text`` and ``challenge_id`` must be byte strings (i.e.,
             :class:`str` objects). You are expected to encode any non-ASCII
             unicode character that the user might've entered.
         
