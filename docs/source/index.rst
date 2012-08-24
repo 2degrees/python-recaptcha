@@ -106,6 +106,8 @@ Client API
 
 .. autoclass:: RecaptchaClient
 
+.. autodata:: RECAPTCHA_CHARACTER_ENCODING
+
 Exceptions
 ----------
 

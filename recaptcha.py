@@ -25,6 +25,7 @@ from urlparse import urlunsplit
 
 
 __all__ = [
+    'RECAPTCHA_CHARACTER_ENCODING',
     'RecaptchaClient',
     'RecaptchaException',
     'RecaptchaInvalidChallengeError',
@@ -39,6 +40,20 @@ _RECAPTCHA_API_URL = 'http://www.google.com/recaptcha/api/'
 _RECAPTCHA_VERIFICATION_RELATIVE_URL_PATH = 'verify'
 _RECAPTCHA_JAVASCRIPT_CHALLENGE_RELATIVE_URL_PATH = 'challenge'
 _RECAPTCHA_NOSCRIPT_CHALLENGE_RELATIVE_URL_PATH = 'noscript'
+
+
+RECAPTCHA_CHARACTER_ENCODING = 'UTF-8'
+"""
+The character encoding to be used when making requests to the remote API.
+
+**Keep in mind that an ASCII string is also a valid UTF-8 string.** So
+applications which use ASCII exclusively don't need to encode their strings to
+use this library.
+
+This is not officially documented but can be inferred from the encoding used in
+the noscript challenge.
+
+"""
 
 
 _RECAPTCHA_CHALLENGE_MARKUP_TEMPLATE = """
@@ -146,7 +161,7 @@ class RecaptchaClient(object):
         
         :param solution_text: The user's solution to the CAPTCHA challenge
             identified by ``challenge_id``
-        :type solution_text: :class:`str`
+        :type solution_text: :class:`basestring`
         :type challenge_id: :class:`str`
         :param remote_ip: The IP address of the user who provided the
             ``solution_text``
@@ -157,21 +172,20 @@ class RecaptchaClient(object):
         :raises RecaptchaUnreachableError: If it couldn't communicate with the
             reCAPTCHA API or the connection timed out
         
+        ``solution_text`` must be a string encoded in
+        :const:`RECAPTCHA_CHARACTER_ENCODING`.
+        
         This method communicates with the remote reCAPTCHA API and uses the
         ``verification_timeout`` set in the constructor.
-        
-        .. note::
-        
-            ``solution_text`` and ``challenge_id`` must be byte strings (i.e.,
-            :class:`str` objects). You are expected to encode any non-ASCII
-            unicode character that the user might've entered.
         
         """
         if not solution_text or not challenge_id:
             return False
         
+        solution_text_decoded = \
+            solution_text.decode(RECAPTCHA_CHARACTER_ENCODING)
         verification_result = self._get_recaptcha_response_for_solution(
-            solution_text,
+            solution_text_decoded,
             challenge_id,
             remote_ip,
             )
@@ -217,7 +231,7 @@ class RecaptchaClient(object):
     
     def _get_recaptcha_response_for_solution(
         self,
-        solution_text,
+        solution_text_decoded,
         challenge_id,
         remote_ip,
         ):
@@ -229,7 +243,7 @@ class RecaptchaClient(object):
             'privatekey': self.private_key,
             'remoteip': remote_ip,
             'challenge': challenge_id,
-            'response': solution_text,
+            'response': solution_text_decoded,
             })
         request = Request(
             url=verification_url,

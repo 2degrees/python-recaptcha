@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (c) 2012, 2degrees Limited <2degrees-floss@googlegroups.com>.
@@ -21,6 +22,7 @@ from nose.tools import assert_false
 from nose.tools import assert_in
 from nose.tools import assert_not_equal
 from nose.tools import assert_not_in
+from nose.tools import assert_raises
 from nose.tools import assert_raises_regexp
 from nose.tools import eq_
 from nose.tools import ok_
@@ -34,8 +36,12 @@ from recaptcha import RecaptchaInvalidPrivateKeyError
 __all__ = [
     'TestChallengeOptions',
     'TestChallengeURLsGeneration',
+    'TestSolutionEncoding',
     'TestSolutionVerification',
     ]
+
+
+_CORRECT_SOLUTION_RESULT = {'is_solution_correct': True}
 
 
 _INCORRECT_SOLUTION_RESULT = {
@@ -245,8 +251,7 @@ class TestSolutionVerification(object):
                 )
     
     def test_correct_solution_and_challenge(self):
-        correct_solution_result = {'is_solution_correct': True}
-        client = _OfflineVerificationClient(correct_solution_result)
+        client = _OfflineVerificationClient(_CORRECT_SOLUTION_RESULT)
         
         is_solution_correct = client.is_solution_correct(
             _FAKE_SOLUTION_TEXT,
@@ -266,6 +271,47 @@ class TestSolutionVerification(object):
         assert_false(is_solution_correct)
 
 
+class TestSolutionEncoding(object):
+    
+    def setup(self):
+        self.client = _SolutionCapturingClient()
+    
+    def test_utf8_input(self):
+        solution_utf8 = u'profesión'.encode('utf8')
+        
+        self.client.is_solution_correct(
+            solution_utf8,
+            _FAKE_CHALLENGE_ID,
+            _RANDOM_REMOTE_IP,
+            )
+        
+        solution_bytestring = solution_utf8.decode('utf8')
+        eq_(solution_bytestring, self.client.solution_text_decoded)
+    
+    def test_ascii_input(self):
+        solution_ascii = 'profession'
+        
+        self.client.is_solution_correct(
+            solution_ascii,
+            _FAKE_CHALLENGE_ID,
+            _RANDOM_REMOTE_IP,
+            )
+        
+        eq_(solution_ascii, self.client.solution_text_decoded)
+    
+    def test_input_in_unsupported_encoding(self):
+        solution_utf8 = u'profesión'.encode('utf8')
+        solution_bytestring = solution_utf8.decode('utf8')
+        solution_latin1 = solution_bytestring.encode('latin1')
+        
+        with assert_raises(UnicodeDecodeError):
+            self.client.is_solution_correct(
+                solution_latin1,
+                _FAKE_CHALLENGE_ID,
+                _RANDOM_REMOTE_IP,
+                )
+
+
 #{ Stubs
 
 
@@ -282,7 +328,7 @@ class _OfflineVerificationClient(RecaptchaClient):
     
     def _get_recaptcha_response_for_solution(
         self,
-        solution_text,
+        solution_text_decoded,
         challenge_id,
         remote_ip,
         ):
@@ -290,6 +336,31 @@ class _OfflineVerificationClient(RecaptchaClient):
         self.communication_attempts += 1
         
         return self.verification_result
+
+
+class _SolutionCapturingClient(_OfflineVerificationClient):
+    
+    def __init__(self):
+        super(_SolutionCapturingClient, self).__init__(_CORRECT_SOLUTION_RESULT)
+        
+        self.solution_text_decoded = None
+    
+    def _get_recaptcha_response_for_solution(
+        self,
+        solution_text_decoded,
+        challenge_id,
+        remote_ip,
+        ):
+        
+        self.solution_text_decoded = solution_text_decoded
+        
+        bound_super = super(_SolutionCapturingClient, self)
+        verification_result = bound_super._get_recaptcha_response_for_solution(
+            solution_text_decoded,
+            challenge_id,
+            remote_ip,
+            )
+        return verification_result
 
 
 #}
