@@ -90,7 +90,7 @@ _CLIENT_USER_AGENT = \
 
 class RecaptchaClient(object):
     """Stateless reCAPTCHA client."""
-    
+
     def __init__(
         self,
         private_key,
@@ -99,7 +99,7 @@ class RecaptchaClient(object):
         verification_timeout=None,
         ):
         """
-        
+
         :param private_key: The reCAPTCHA API private key
         :type private_key: :class:`str`
         :param public_key: The reCAPTCHA API public key
@@ -109,20 +109,20 @@ class RecaptchaClient(object):
         :param verification_timeout: Maximum number of seconds to wait for
             reCAPTCHA to respond to a verification request
         :type verification_timeout: :class:`int`
-        
+
         When ``verification_timeout`` is ``None``, the default socket timeout
         will be used. See :meth:`is_solution_correct`.
-        
+
         """
         super(RecaptchaClient, self).__init__()
-        
+
         self.private_key = private_key
         self.public_key = public_key
-        
+
         self.recaptcha_options_json = json_encode(recaptcha_options or {})
-        
+
         self.verification_timeout = verification_timeout
-    
+
     def get_challenge_markup(
         self,
         was_previous_solution_incorrect=False,
@@ -130,35 +130,35 @@ class RecaptchaClient(object):
         ):
         """
         Return the X/HTML code to present a challenge.
-        
+
         :type was_previous_solution_incorrect: :class:`bool`
         :param use_ssl: Whether to generate the markup with HTTPS URLs instead
             of HTTP ones
         :type use_ssl: :class:`bool`
         :rtype: :class:`str`
-        
+
         This method does not communicate with the remote reCAPTCHA API.
-        
+
         """
         challenge_markup_variables = {
             'recaptcha_options_json': self.recaptcha_options_json,
             }
-        
+
         challenge_urls = self._get_challenge_urls(
             was_previous_solution_incorrect,
             use_ssl,
             )
         challenge_markup_variables.update(challenge_urls)
-        
+
         challenge_markup = _RECAPTCHA_CHALLENGE_MARKUP_TEMPLATE.format(
             **challenge_markup_variables
             )
         return challenge_markup
-    
+
     def is_solution_correct(self, solution_text, challenge_id, remote_ip):
         """
         Report whether the ``solution_text`` for ``challenge_id`` is correct.
-        
+
         :param solution_text: The user's solution to the CAPTCHA challenge
             identified by ``challenge_id``
         :type solution_text: :class:`basestring`
@@ -171,17 +171,17 @@ class RecaptchaClient(object):
         :raises RecaptchaInvalidPrivateKeyError:
         :raises RecaptchaUnreachableError: If it couldn't communicate with the
             reCAPTCHA API or the connection timed out
-        
+
         ``solution_text`` must be a string encoded in
         :const:`RECAPTCHA_CHARACTER_ENCODING`.
-        
+
         This method communicates with the remote reCAPTCHA API and uses the
         ``verification_timeout`` set in the constructor.
-        
+
         """
         if not solution_text or not challenge_id:
             return False
-        
+
         solution_text_decoded = \
             solution_text.decode(RECAPTCHA_CHARACTER_ENCODING)
         verification_result = self._get_recaptcha_response_for_solution(
@@ -189,18 +189,18 @@ class RecaptchaClient(object):
             challenge_id,
             remote_ip,
             )
-        
+
         is_solution_correct = verification_result['is_solution_correct']
-        
+
         if not is_solution_correct:
             error_code = verification_result['error_code']
             if error_code == 'invalid-request-cookie':
                 raise RecaptchaInvalidChallengeError(challenge_id)
             elif error_code == 'invalid-site-private-key':
                 raise RecaptchaInvalidPrivateKeyError(self.private_key)
-        
+
         return is_solution_correct
-    
+
     def _get_challenge_urls(
         self,
         was_previous_solution_incorrect,
@@ -210,25 +210,25 @@ class RecaptchaClient(object):
         if was_previous_solution_incorrect:
             url_query_components['error'] = 'incorrect-captcha-sol'
         url_query_encoded = urlencode(url_query_components)
-        
+
         javascript_challenge_url = _get_recaptcha_api_call_url(
             use_ssl,
             _RECAPTCHA_JAVASCRIPT_CHALLENGE_RELATIVE_URL_PATH,
             url_query_encoded,
             )
-        
+
         noscript_challenge_url = _get_recaptcha_api_call_url(
             use_ssl,
             _RECAPTCHA_NOSCRIPT_CHALLENGE_RELATIVE_URL_PATH,
             url_query_encoded,
             )
-        
+
         challenge_urls = {
             'javascript_challenge_url': javascript_challenge_url,
             'noscript_challenge_url': noscript_challenge_url,
             }
         return challenge_urls
-    
+
     def _get_recaptcha_response_for_solution(
         self,
         solution_text_decoded,
@@ -250,7 +250,7 @@ class RecaptchaClient(object):
             data=request_data,
             headers={'User-agent': _CLIENT_USER_AGENT},
             )
-        
+
         urlopen_kwargs = {}
         if self.verification_timeout is not None:
             urlopen_kwargs['timeout'] = self.verification_timeout
@@ -261,12 +261,12 @@ class RecaptchaClient(object):
         else:
             response_lines = response.read().splitlines()
             response.close()
-        
+
         is_solution_correct = response_lines[0] == 'true'
         verification_result = {'is_solution_correct': is_solution_correct}
         if not is_solution_correct:
             verification_result['error_code'] = response_lines[1]
-        
+
         return verification_result
 
 
@@ -295,13 +295,13 @@ class RecaptchaUnreachableError(RecaptchaException):
 
 def _get_recaptcha_api_call_url(use_ssl, relative_url_path, encoded_query=''):
     url_scheme = 'https' if use_ssl else 'http'
-    
+
     recaptcha_api_url_components = urlsplit(_RECAPTCHA_API_URL)
     url_path = urljoin(
         recaptcha_api_url_components.path,
         relative_url_path,
         )
-    
+
     url = urlunsplit((
         url_scheme,
         recaptcha_api_url_components.netloc,
